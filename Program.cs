@@ -17,12 +17,23 @@ namespace BlogsConsole
                 string choice = "";
                 do
                 {
-                    Console.WriteLine("1) Create Blog");
-                    Console.WriteLine("2) Create Post");
+                    Console.WriteLine("1) Display All Blogs");
+                    Console.WriteLine("2) Create Blog");
+                    Console.WriteLine("3) Create Post");
+                    Console.WriteLine("4) Display Posts");
                     Console.WriteLine("Anything Else To Exit");
                     choice = Console.ReadLine();
                     logger.Info("User Choice:"+choice);
-                    if (choice.Equals("1"))
+                    if (choice == "1")
+                    {
+                        var query = db.Blogs.OrderBy(b => b.BlogId);
+
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine(item.Name);
+                        }
+                    }
+                    if (choice.Equals("2"))
                     {
                         // Create and save a new Blog
                         Console.Write("Enter a name for a new Blog: ");
@@ -33,7 +44,7 @@ namespace BlogsConsole
                         db.AddBlog(blog);
                         logger.Info("Blog added - {name}", name);
                     }
-                    if (choice.Equals("2"))
+                    if (choice.Equals("3"))
                     {
                         // Display all Blogs from the database
                         var query = db.Blogs.OrderBy(b => b.BlogId);
@@ -43,15 +54,67 @@ namespace BlogsConsole
                         {
                             Console.WriteLine(item.BlogId + " - " + item.Name);
                         }
-                        int blogid = int.Parse(Console.ReadLine());
-                        Blog myBlog = query.ToList()[blogid];
-                        Console.WriteLine("Title For Post:");
-                        string title = Console.ReadLine();
-                        Console.WriteLine("Content of Post:");
-                        string content = Console.ReadLine();
-                        Post post = new Post { Title = title, Content = content, BlogId = blogid, Blog = myBlog };
-                        db.AddPost(post);
+                        try
+                        {
+                            int blogid = int.Parse(Console.ReadLine());
+                            if (blogid > query.Count() || blogid <= 0)
+                            {
+                                logger.Error("Post Not Added-Input Was Not a Valid Blog ID");
+                            }
+                            else
+                            {
+                                Blog myBlog = query.ToList()[blogid];
+                                Console.WriteLine("Title For Post:");
+                                string title = Console.ReadLine();
+                                if (title.Length == 0)
+                                {
+                                    logger.Error("Post Not Added-Post Must Have A Title");
+                                }
+                                Console.WriteLine("Content of Post:");
+                                string content = Console.ReadLine();
+                                Post post = new Post { Title = title, Content = content, BlogId = blogid, Blog = myBlog };
+                                db.AddPost(post);
+                            }
+                        }
+                        catch
+                        {
+                            logger.Error("Post Not Added-Input Was Not A Valid Number");
+                        }
 
+                    }
+                    if (choice == "4")
+                    {
+                        var query = db.Blogs.OrderBy(b => b.BlogId);
+
+                        Console.WriteLine("Choose blog to Display Posts:");
+                        Console.WriteLine("0 - All Blogs");
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine(item.BlogId + " - " + item.Name);
+                        }
+                        int blogid = 0;
+                        try
+                        {
+                            blogid=int.Parse(Console.ReadLine());
+                            if (blogid < 0 || blogid > query.Count())
+                            {
+                                logger.Info("Input Was Not a Valid Blog ID-Displaying All Posts");
+                                blogid = 0;
+                            }
+                        }
+                        catch
+                        {
+                            logger.Info("Input Was Not a Valid Number-Displaying All Posts");
+                        }
+                        var posts = db.Posts.Where(p => p.BlogId == blogid);
+                        if (blogid == '0')
+                        {
+                            posts = db.Posts.OrderBy(p => p.BlogId);
+                        }
+                        foreach(var post in posts)
+                        {
+                            Console.WriteLine($"Blog: {post.Blog}\nTitle: {post.Title}\nContent: {post.Content}");
+                        }
                     }
                 } while (choice == "1" || choice == "2");
             }

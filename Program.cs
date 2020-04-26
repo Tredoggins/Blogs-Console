@@ -38,11 +38,17 @@ namespace BlogsConsole
                         // Create and save a new Blog
                         Console.Write("Enter a name for a new Blog: ");
                         var name = Console.ReadLine();
+                        if (name.Length == 0)
+                        {
+                            logger.Error("Blog Not Added-Blog Needs A Name");
+                        }
+                        else
+                        {
+                            var blog = new Blog { Name = name };
 
-                        var blog = new Blog { Name = name };
-
-                        db.AddBlog(blog);
-                        logger.Info("Blog added - {name}", name);
+                            db.AddBlog(blog);
+                            logger.Info("Blog added - {name}", name);
+                        }
                     }
                     if (choice.Equals("3"))
                     {

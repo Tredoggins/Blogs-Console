@@ -27,7 +27,7 @@ namespace BlogsConsole
                     if (choice == "1")
                     {
                         var query = db.Blogs.OrderBy(b => b.BlogId);
-
+                        Console.WriteLine(query.Count() + " Blogs Returned");
                         foreach (var item in query)
                         {
                             Console.WriteLine(item.Name);
@@ -46,7 +46,6 @@ namespace BlogsConsole
                     }
                     if (choice.Equals("3"))
                     {
-                        // Display all Blogs from the database
                         var query = db.Blogs.OrderBy(b => b.BlogId);
 
                         Console.WriteLine("Choose blog to write to:");
@@ -111,6 +110,7 @@ namespace BlogsConsole
                         {
                             posts = db.Posts.OrderBy(p => p.BlogId);
                         }
+                        Console.WriteLine(posts.Count() + " Posts Returned");
                         foreach(var post in posts)
                         {
                             Console.WriteLine($"Blog: {post.Blog}\nTitle: {post.Title}\nContent: {post.Content}");
